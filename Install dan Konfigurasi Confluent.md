@@ -165,3 +165,111 @@ Hancurkan penyebaran Platform Confluent lokal Anda.
 ```
 $ confluent local destroy
 ```
+
+# Jelajahi Skrip run-class dan Variabel Environment
+
+Apa Itu Skrip run-class?
+Luncurkan mesin virtual lab yang disebut "Confluent Platform Preinstalled" untuk membuat lingkungan lab tempat CP telah diinstal sebelumnya dengan manajer paket apt.
+
+Lihat berkas unit systemd Confluent Server, khususnya baris ExecStart yang menentukan cara memulai layanan.
+
+```
+$ systemctl cat confluent-server
+```
+
+Di mana layanan Confluent Server mencari berkas properti konfigurasinya?
+
+solusi
+
+Skrip apa yang dijalankan untuk memulai layanan?
+
+solusi
+
+Buka skrip kafka-server-start dan perhatikan bahwa skrip tersebut merupakan pembungkus tipis di sekitar skrip kafka-run-class.
+
+```
+$ code $(which kafka-server-start)
+```
+
+Variabel lingkungan apa yang diekspor ke proses kafka-run-class dan apa fungsinya?
+
+solusi
+Urutkan Variabel Lingkungan
+Buka skrip kafka-run-class itu sendiri.
+
+dengan command berikut:
+
+```
+$ code $(which kafka-run-class)
+```
+
+Pelajari variabel lingkungan dalam skrip kafka-run-class dan buat peringkat 5 variabel terpenting. Tidak ada jawaban pasti untuk pertanyaan ini, tetapi contoh respons disediakan untuk Anda.
+
+contoh respons
+Sesuaikan Variabel Lingkungan dalam systemd
+Biasanya, kustomisasi variabel lingkungan dilakukan dengan mengganti file unit systemd yang disediakan. Dalam kasus ini, kami akan mengganti confluent-server.service untuk menambah memori yang tersedia untuk heap JVM.
+
+Buat direktori untuk layanan. Kata sandi sudo sedang dilatih.
+
+```
+$ sudo mkdir /etc/systemd/system/confluent-server.service.d
+```
+
+Buat file penggantian systemd untuk layanan confluent-server guna menambah memori heap hingga 4 GB.
+
+```
+$ cat << EOF | sudo tee /etc/systemd/system/confluent-server.service.d/override.conf
+[Layanan]
+Environment="KAFKA_HEAP_OPTS=-Xms4g -Xmx4g"
+EOF
+```
+
+systemd akan secara otomatis menggabungkan pengaturan di /etc/systemd/system/<service>.service.d/override.conf dengan file layanan asli /lib/systemd/system/<service>.service sebelum memulai layanan.
+
+Muat ulang daemon systemd untuk mengambil alih layanan.
+
+```
+$ sudo systemctl daemon-reload
+```
+
+Mulai ZooKeeper.
+
+```
+$ sudo systemctl start confluent-zookeeper
+```
+
+Mulai Confluent Server.
+
+```
+$ sudo systemctl start confluent-server
+```
+
+Periksa apakah broker Kafka berjalan dengan ukuran heap JVM yang dikonfigurasi.
+
+```
+$ systemctl status confluent-server
+```
+
+Berikut command jika ingin mulai Confluent Control Center menggunakan konfigurasi pengembangan lokal.
+
+```
+$ control-center-start /etc/confluent-control-center/control-center-dev.properties
+```
+
+Anda akan melihat output seperti ini:
+
+```
+
+● confluent-server.service - Apache Kafka - broker
+Loaded: loaded (/lib/systemd/system/confluent-server.service; disabled; vendor preset: enabled)
+Drop-In: /etc/systemd/system/confluent-server.service.d
+└─override.conf
+Active: active (running) sejak Thu 2020-11-05 22:13:06 UTC; 20 detik yang lalu
+Dokumen: http://docs.confluent.io/
+PID Utama: 19983 (java)
+Tugas: 93 (batas: 4915)
+CGroup: /system.slice/confluent-server.service
+└─19983 java -Xms4g -Xmx4g -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 ...
+
+```
+

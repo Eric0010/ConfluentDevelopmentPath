@@ -50,3 +50,32 @@ Dapat diandalkan dan men-toleransi kesalahan
 
 - Jika salah satu worker gagal, maka semua tugas dan connector yang ada di dalamnya secara otomatis me restart di worker yang lain.
 - Jika salah satu tugas dan connector gagal, maka seorang user bisa memutuskan solusi yang diinginkan.
+
+# Konfigurasi connector Kafka Connect
+
+![image](https://github.com/user-attachments/assets/d7b2fce7-6223-47f6-b1fd-feb74c43757a)
+
+Beberapa Connector juga bisa di konfigurasi di Confluent Connect Center (Source dan Sink).
+
+![image](https://github.com/user-attachments/assets/ece7f9a6-57d9-4b20-abb2-8b4f38d25590)
+
+Berikut adalah contoh file connector yang berbentuk JSON file.
+
+connector bisa ditambahkan, diubah dan dihapus via REST API di dalam port 8083.
+
+Anda bisa menjalankan Kafka connect di dalam 2 mode:
+
+# Mode Distributed
+
+- konfigurasi bisa dijalankan via REST API.
+- Perubahan yang terjadi akan dipertahankan ketika proses sebuah worker di restart.
+- Konfigurasi data connector di simpan di dalam Kafka topic yang bersifat spesial.
+- Permintaan REST bisa dibuat di worker mana pun.
+
+# Mode Standalone
+
+- konfigurasi juga bisa dijalankan via REST API.
+      Untuk Standalone, biasanya konfigurasi dilakukan via file properties.
+- Perubahan yang terjadi via REST API di mode Standalone tidak akan dipertahankan ketika proses sebuah worker di restart.
+- C3 memanfaatkan REST API untuk membiarkan seorang user meng-konfigurasi dan mengatur connector lewat GUI.
+  

@@ -194,9 +194,10 @@ $ code $(which kafka-server-start)
 Variabel lingkungan apa yang diekspor ke proses kafka-run-class dan apa fungsinya?
 
 KAFKA_LOG4J_OPTS diekspor dengan nilai default
-
+```
 "-Dlog4j.configuration=file:/etc/kafka/log4j.properties"
-Salin
+```
+
 Variabel ini digunakan untuk memuat file konfigurasi dari /etc/kafka/log4j.properties ke dalam Java Virtual Machine untuk mengonfigurasi pengaturan pencatatan log4j.
 
 Variabel KAFKA_HEAP_OPTS diekspor dengan nilai default "-Xmx1G -Xms1G", yang akan menetapkan 1 Gigabyte memori ke tumpukan JVM broker Kafka.

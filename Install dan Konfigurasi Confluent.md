@@ -179,11 +179,11 @@ $ systemctl cat confluent-server
 
 Di mana layanan Confluent Server mencari berkas properti konfigurasinya?
 
-solusi
+/etc/kafka/server.properties
 
 Skrip apa yang dijalankan untuk memulai layanan?
 
-solusi
+/usr/bin/kafka-server-start
 
 Buka skrip kafka-server-start dan perhatikan bahwa skrip tersebut merupakan pembungkus tipis di sekitar skrip kafka-run-class.
 
@@ -193,8 +193,16 @@ $ code $(which kafka-server-start)
 
 Variabel lingkungan apa yang diekspor ke proses kafka-run-class dan apa fungsinya?
 
-solusi
+KAFKA_LOG4J_OPTS diekspor dengan nilai default
+
+"-Dlog4j.configuration=file:/etc/kafka/log4j.properties"
+Salin
+Variabel ini digunakan untuk memuat file konfigurasi dari /etc/kafka/log4j.properties ke dalam Java Virtual Machine untuk mengonfigurasi pengaturan pencatatan log4j.
+
+Variabel KAFKA_HEAP_OPTS diekspor dengan nilai default "-Xmx1G -Xms1G", yang akan menetapkan 1 Gigabyte memori ke tumpukan JVM broker Kafka.
+
 Urutkan Variabel Lingkungan
+
 Buka skrip kafka-run-class itu sendiri.
 
 dengan command berikut:
@@ -205,7 +213,24 @@ $ code $(which kafka-run-class)
 
 Pelajari variabel lingkungan dalam skrip kafka-run-class dan buat peringkat 5 variabel terpenting. Tidak ada jawaban pasti untuk pertanyaan ini, tetapi contoh respons disediakan untuk Anda.
 
-contoh respons
+CLASSPATH: Variabel ini penting untuk memuat kelas Java ke dalam Java Virtual Machine (JVM) dari file .jar yang diinstal oleh manajer paket. Secara default, CLASSPATH dibuat dari berbagai direktori di bawah /usr/share/java/. Mengetahui hal ini dapat membantu saat men-debug kesalahan saat kelas tidak dimuat karena suatu alasan. Di sisi klien Kafka, CLASSPATH umumnya dimodifikasi untuk menginstrumentasikan aplikasi klien dengan interseptor pemantauan untuk mengirim metrik klien ke Confluent Control Center. Interseptor pemantauan confluent terletak di /usr/share/java/monitoring-interceptors/monitoring-interceptors-6.0.0.jar.
+
+KAFKA_HEAP_OPTS: Broker Kafka menggunakan tumpukan Java untuk mereplikasi partisi dengan sekitar 1 Megabyte per replika. Ukuran tumpukan JVM default untuk broker adalah 1 Gigabyte, yang sering kali terlalu kecil untuk penerapan produksi besar. Biasanya 4-6 GB direkomendasikan, dengan penerapan yang sangat besar pada 12 GB.
+
+Contoh: KAFKA_HEAP_OPTS="-Xms6g -Xmx6g"
+
+KAFKA_JVM_PERFORMANCE_OPTS: Variabel lingkungan ini dapat digunakan untuk menyetel pengumpulan sampah dan konfigurasi JVM lainnya. Berikut adalah contoh penggunaan rekomendasi produksi Confluent:
+
+KAFKA_JVM_PERFORMANCE_OPTS="-XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+
+JMX_PORT: Jika port JMX (Java Management Extensions) tidak ditentukan, maka broker Kafka tidak akan memaparkan metriknya melalui JMX.
+
+Contoh: JMX_PORT=9990
+
+JMX_OPTS: Dalam produksi, merupakan hal yang umum untuk menyesuaikan opsi JMX guna mengamankan koneksi dengan SSL. Berikut adalah contoh di mana klien JMX dan broker Kafka harus saling mengautentikasi melalui SSL:
+
+KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote \ -Djavax.net.ssl.keyStore=</path/to/file>.keystore \ -Djavax.net.ssl.keyStorePassword=<keystore-password> \ -Dcom.sun.management.jmxremote.ssl.need.client.auth=true \ -Djavax.net.ssl.trustStore=</path/to/file>.truststore \ -Djavax.net.ssl.trustStorePassword=<truststore-password> \ -Dcom.sun.management.jmxremote.registry.ssl=true"
+
 Sesuaikan Variabel Lingkungan dalam systemd
 Biasanya, kustomisasi variabel lingkungan dilakukan dengan mengganti file unit systemd yang disediakan. Dalam kasus ini, kami akan mengganti confluent-server.service untuk menambah memori yang tersedia untuk heap JVM.
 

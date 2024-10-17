@@ -31,6 +31,7 @@ void start(Map<String, String> props) kode tugas Anda menerima konfigurasi yang 
 List<SourceRecord> poll() Connect "memeriksa" tugas Anda untuk data baru.
 
 Copying Data
+
 Di dalam metode poll() kode Anda mengembalikan daftar kelas SourceRecord yang diisi dengan data yang disalin dari sumber Anda. Kelas SourceRecord juga menetapkan pengimbang aliran pemrosesan Anda.
 
 ```

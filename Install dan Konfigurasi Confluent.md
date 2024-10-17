@@ -155,16 +155,6 @@ jaipur,{"city":"jaipur","temp":"87"}
 CLI lokal confluent tahu cara mendaftarkan dan mencari skema dengan layanan Schema Registry di http://localhost:8081
 Hentikan semua proses produsen dan konsumen yang sedang berjalan dengan Ctrl+C.
 
-(Opsional) Jelajahi Confluent Control Center
-
-Buka browser dan navigasikan ke http://localhost:9021 untuk membuka Confluent Control Center.
-
-Pilih Cluster 1 dari menu sebelah kiri.
-
-Hancurkan penyebaran Platform Confluent lokal Anda.
-```
-$ confluent local destroy
-```
 
 # Jelajahi Skrip run-class dan Variabel Environment
 

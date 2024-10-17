@@ -50,7 +50,7 @@ Skema dan Struct
 Output konektor Anda dapat berupa tipe standar Java, atau struktur data dari paket org.apache.kafka.connect.data. Jika data Anda berupa rekaman terstruktur, Anda dapat mengisi Struct dan menyediakan skema.
 
 ```
-Skema schema = SchemaBuilder.struct().name("com.example.Person")
+Schema schema = SchemaBuilder.struct().name("com.example.Person")
 .field("name", Schema.STRING_SCHEMA).field("age", Schema.INT32_SCHEMA).build();
 Struct struct = new Struct(schema).put("name", "Bobby McGee").put("age", 21);
 ```
